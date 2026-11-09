@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ProBem é uma ONG que conecta voluntários e doadores a projetos de educação, alimentação e cidadania." />
+    <title>ProBem — ONG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+    <header class="topo">
+      <a class="marca" href="#">ProBem</a>
+      <nav aria-label="Principal">
+        <a href="#projetos">Projetos</a>
+        <a href="#ajudar">Como ajudar</a>
+        <a href="#voluntario">Seja voluntário</a>
+      </nav>
+    </header>
+
+    <main id="conteudo">
+      <section class="hero">
+        <h1>Fazer o bem rende mais quando é feito junto.</h1>
+        <p>A ProBem leva reforço escolar, cestas de alimentos e orientação de direitos para famílias do nosso bairro. Entre como voluntário ou apoie um projeto.</p>
+        <div class="acoes">
+          <a class="btn" href="#voluntario">Quero ser voluntário</a>
+          <a class="btn btn-sec" href="#ajudar">Quero doar</a>
+        </div>
+      </section>
+
+      <section id="projetos" class="secao">
+        <h2>Nossos projetos</h2>
+        <div class="projetos">
+          <article>
+            <h3>Reforço na Prática</h3>
+            <p>Aulas de apoio de português e matemática para crianças do ensino fundamental, duas vezes por semana.</p>
+          </article>
+          <article>
+            <h3>Mesa Cheia</h3>
+            <p>Arrecadação e entrega mensal de cestas de alimentos para famílias cadastradas.</p>
+          </article>
+          <article>
+            <h3>Direito de Saber</h3>
+            <p>Plantão com voluntários para orientar sobre documentos, benefícios e serviços públicos.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="ajudar" class="secao">
+        <h2>Como ajudar</h2>
+        <ul class="lista">
+          <li><strong>Doe alimentos ou materiais escolares.</strong> Entregue na nossa sede, de segunda a sexta, das 9h às 17h.</li>
+          <li><strong>Contribua com dinheiro.</strong> Chave Pix: <code>00.000.000/0001-00</code> (exemplo fictício, não é uma chave real).</li>
+          <li><strong>Doe seu tempo.</strong> Preencha o formulário abaixo e conte como quer participar.</li>
+        </ul>
+      </section>
+
+      <section id="voluntario" class="secao">
+        <h2>Seja voluntário</h2>
+        <form id="form" novalidate>
+          <label>Nome
+            <input name="nome" autocomplete="name" required />
+            <span class="erro" data-erro="nome"></span>
+          </label>
+          <label>E-mail
+            <input name="email" type="email" autocomplete="email" required />
+            <span class="erro" data-erro="email"></span>
+          </label>
+          <label>Como você gostaria de ajudar? (opcional)
+            <textarea name="mensagem" rows="3" maxlength="500"></textarea>
+          </label>
+          <button class="btn" type="submit">Enviar cadastro</button>
+          <p id="resposta" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="rodape">
+      <p>© <span id="ano"></span> ONG ProBem. Organização fictícia, criada para fins de estudo.</p>
+     <p id="status" class="status" data-estado="carregando">Status da API: verificando…</p>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

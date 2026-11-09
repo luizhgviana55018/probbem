@@ -1,0 +1,56 @@
+:root {
+  --mar: #0f3d3e;
+  --sol: #f5b82e;
+  --menta: #d8ede6;
+  --papel: #f7faf9;
+  --tinta: #14211f;
+  --erro: #b3261e;
+  --titulo: 'Bricolage Grotesque', 'Trebuchet MS', sans-serif;
+  --texto: 'Public Sans', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font: 1.05rem/1.6 var(--texto); }
+h1, h2, h3 { font-family: var(--titulo); line-height: 1.1; margin: 0 0 .6em; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--sol); outline-offset: 3px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; background: var(--sol); padding: .5rem 1rem; z-index: 10; }
+
+.topo, .secao, .hero, .rodape { padding-inline: max(1.25rem, calc((100% - 62rem) / 2)); }
+.topo { display: flex; justify-content: space-between; align-items: center; padding-block: 1rem; background: var(--mar); color: #fff; }
+.topo nav { display: flex; gap: 1.25rem; font-size: .95rem; }
+.topo nav a { text-decoration: none; }
+.topo nav a:hover { text-decoration: underline; }
+.marca { font: 800 1.5rem var(--titulo); text-decoration: none; }
+
+.hero { background: var(--mar); color: #fff; padding-block: 4rem 5rem; border-bottom: 1rem solid var(--sol); }
+.hero h1 { font-size: clamp(2.4rem, 7vw, 4.5rem); font-weight: 800; max-width: 14ch; }
+.hero p { max-width: 52ch; color: var(--menta); }
+.acoes { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.75rem; }
+
+.btn { display: inline-block; background: var(--sol); color: var(--tinta); font: 700 1rem var(--texto); padding: .8rem 1.4rem; border: 0; border-radius: .4rem; text-decoration: none; cursor: pointer; }
+.btn:hover { filter: brightness(.93); }
+.btn-sec { background: transparent; color: #fff; box-shadow: inset 0 0 0 2px var(--menta); }
+
+.secao { padding-block: 3.5rem; }
+.secao + .secao { border-top: 1px solid var(--menta); }
+.projetos { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.projetos article { border-left: 5px solid var(--sol); padding-left: 1rem; }
+.projetos p { margin: 0; max-width: 40ch; }
+.lista { padding-left: 1.2rem; max-width: 60ch; }
+.lista li { margin-bottom: .8rem; }
+code { background: var(--menta); padding: .1em .35em; border-radius: .25rem; }
+
+form { display: grid; gap: 1rem; max-width: 30rem; }
+label { display: grid; gap: .3rem; font-weight: 600; }
+input, textarea { font: inherit; padding: .65rem .75rem; border: 2px solid var(--mar); border-radius: .4rem; background: #fff; }
+.erro { color: var(--erro); font-weight: 400; font-size: .9rem; min-height: 1em; }
+#resposta { margin: 0; min-height: 1.6em; }
+
+.rodape { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding-block: 1.5rem; background: var(--mar); color: var(--menta); font-size: .9rem; }
+.rodape p { margin: 0; }
+.status { font-weight: 600; }
+.status[data-estado='ok'] { color: #8be2b5; }
+.status[data-estado='erro'] { color: #ffb4ab; }
+
+@media (max-width: 36rem) { .topo nav { display: none; } }
