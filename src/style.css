@@ -54,3 +54,57 @@ input, textarea { font: inherit; padding: .65rem .75rem; border: 2px solid var(-
 .status[data-estado='erro'] { color: #ffb4ab; }
 
 @media (max-width: 36rem) { .topo nav { display: none; } }
+
+
+/* Identidade visual UPROBEM */
+
+:root {
+  --laranja: #f58220;
+  --laranja-escuro: #d9680b;
+  --fundo: #fffaf5;
+  --texto: #333333;
+  --branco: #ffffff;
+}
+
+/* Aparência geral */
+body {
+  background-color: var(--fundo);
+  color: var(--texto);
+  font-family: Arial, sans-serif;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: var(--laranja-escuro);
+}
+
+/* Botões */
+button {
+  background-color: var(--laranja);
+  color: var(--branco);
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: var(--laranja-escuro);
+}
+
+/* Campos */
+input, select, textarea {
+  padding: 11px;
+  border: 1px solid #dddddd;
+  border-radius: 7px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Destaques */
+.destaque {
+  color: var(--laranja);
+  font-weight: bold;
+}
