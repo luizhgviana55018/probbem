@@ -55,8 +55,7 @@ input, textarea { font: inherit; padding: .65rem .75rem; border: 2px solid var(-
 
 @media (max-width: 36rem) { .topo nav { display: none; } }
 
-
-/* Identidade visual UPROBEM */
+/* Identidade visual PROBEM */
 
 :root {
   --laranja: #f58220;
