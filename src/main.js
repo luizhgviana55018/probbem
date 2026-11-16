@@ -1,36 +1,23 @@
-// Atualiza o ano de copyright no rodapé dinamicamente
-const anoSpan = document.getElementById('ano');
-if (anoSpan) {
-  anoSpan.textContent = new Date().getFullYear();
-}
+import "./style.css";
+import { telaDoadores } from "./pages/doadores.js";
+import { telaRegistrar, telaDoacoes } from "./pages/doacoes.js";
 
-// Verifica o status da API e atualiza o rodapé com data e hora
-async function checarStatusAPI() {
-  const statusElement = document.getElementById('status');
-  
-  if (!statusElement) return;
+const rotas = {
+  "#/doadores": telaDoadores,
+  "#/registrar": telaRegistrar,
+  "#/doacoes": telaDoacoes,
+};
 
-  try {
-    const resposta = await fetch('/api/health');
-    const dados = await resposta.json();
+const app = document.querySelector("#app");
 
-    if (resposta.ok && dados.status === 'ok') {
-      // Pega a data e hora do navegador do usuário e formata no padrão brasileiro
-      const dataHoraAtual = new Date().toLocaleString('pt-BR');
-      
-      // Atualiza o texto para cumprir a exigência do PDF da atividade
-      statusElement.textContent = `Status da API: ok - ${dataHoraAtual}`;
-      statusElement.dataset.estado = 'ok';
-    } else {
-      statusElement.textContent = 'Status da API: erro na resposta';
-      statusElement.dataset.estado = 'erro';
-    }
-  } catch (erro) {
-    console.error('Erro ao conectar com a API:', erro);
-    statusElement.textContent = 'Status da API: fora do ar';
-    statusElement.dataset.estado = 'erro';
+async function navegar() {
+  const rota = rotas[location.hash] ? location.hash : "#/doadores";
+  for (const link of document.querySelectorAll("nav a")) {
+    if (link.getAttribute("href") === rota) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
   }
+  await rotas[rota](app);
 }
 
-// Executa a função assim que o script é carregado
-checarStatusAPI();
+window.addEventListener("hashchange", navegar);
+await navegar();

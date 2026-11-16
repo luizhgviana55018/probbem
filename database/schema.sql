@@ -1,63 +1,38 @@
--- ProBem · schema.sql
--- Recria o banco do zero. Apaga os dados existentes.
+-- ConectaDoa Pro Bem · seed.sql (dados fictícios)
 SET NAMES utf8mb4;
-DROP DATABASE IF EXISTS probem;
-CREATE DATABASE probem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE probem;
+USE conectadoa;
 
-CREATE TABLE doador (
-  id_doador INT AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(150) NOT NULL,
-  email VARCHAR(100) UNIQUE,
-  telefone VARCHAR(20),
-  documento VARCHAR(18),
-  endereco VARCHAR(255),
-  data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+INSERT INTO categoria (nome) VALUES
+  ('Dinheiro'),
+  ('Medicamento'),
+  ('Higiene');
 
-CREATE TABLE voluntario (
-  id_voluntario INT AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(150) NOT NULL,
-  funcao VARCHAR(80) NOT NULL,
-  setor VARCHAR(80),
-  crm VARCHAR(20),
-  eh_medico BOOLEAN NOT NULL DEFAULT FALSE
-);
+INSERT INTO item (id_categoria, nome, unidade) VALUES
+  (1, 'Doação em dinheiro (Pix)', 'reais'),
+  (1, 'Doação em dinheiro (Cartão)', 'reais'),
+  (2, 'Dipirona 500 mg (venda livre)', 'caixa'),
+  (2, 'Paracetamol 750 mg (venda livre)', 'caixa'),
+  (2, 'Soro fisiológico 500 ml', 'frasco'),
+  (2, 'Amoxicilina 500 mg (com restrição: médico)', 'caixa'),
+  (2, 'Insulina NPH (com restrição: médico)', 'frasco'),
+  (3, 'Sabonete', 'unidade'),
+  (3, 'Fralda infantil', 'pacote');
 
-CREATE TABLE doacao (
-  id_doacao INT AUTO_INCREMENT PRIMARY KEY,
-  id_doador INT NOT NULL,
-  tipo ENUM('dinheiro','medicamento') NOT NULL,
-  data_doacao DATE NOT NULL,
-  observacao VARCHAR(255),
-  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (id_doador) REFERENCES doador (id_doador)
-);
+INSERT INTO doador (nome, email, telefone) VALUES
+  ('Mercado Bom Preço', 'contato@bompreco.exemplo.com', '(11) 3333-1000'),
+  ('Ana Souza', 'ana.souza@exemplo.com', '(11) 98888-1001'),
+  ('Carlos Lima', NULL, '(11) 97777-1002'),
+  ('Farmácia Vida Plena', 'contato@vidaplena.exemplo.com', '(11) 3333-2000');
 
-CREATE TABLE doacao_dinheiro (
-  id_doacao INT PRIMARY KEY,
-  forma ENUM('pix','boleto') NOT NULL,
-  valor DECIMAL(10,2) NOT NULL CHECK (valor > 0),
-  status ENUM('pendente','confirmado') NOT NULL,
-  confirmacao_email VARCHAR(255),
-  FOREIGN KEY (id_doacao) REFERENCES doacao (id_doacao) ON DELETE CASCADE
-);
+INSERT INTO doacao (id_doador, data_doacao, observacao) VALUES
+  (1, '2026-10-05', 'Doação via Pix da campanha de outubro'),
+  (2, '2026-10-12', 'Pagamento no cartão pelo link seguro'),
+  (4, '2026-10-18', 'Medicamentos conferidos pela farmacêutica voluntária');
 
-CREATE TABLE medicamento (
-  id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(150) NOT NULL,
-  exige_receita BOOLEAN NOT NULL DEFAULT FALSE
-);
-
-CREATE TABLE doacao_medicamento (
-  id_doacao INT NOT NULL,
-  id_medicamento INT NOT NULL,
-  quantidade INT NOT NULL CHECK (quantidade > 0),
-  validade DATE NOT NULL,
-  status_avaliacao ENUM('nao_exige','pendente','aprovada','recusada') NOT NULL DEFAULT 'nao_exige',
-  id_medico INT,
-  PRIMARY KEY (id_doacao, id_medicamento),
-  FOREIGN KEY (id_doacao) REFERENCES doacao (id_doacao) ON DELETE CASCADE,
-  FOREIGN KEY (id_medicamento) REFERENCES medicamento (id_medicamento),
-  FOREIGN KEY (id_medico) REFERENCES voluntario (id_voluntario)
-);
+INSERT INTO doacao_item (id_doacao, id_item, quantidade) VALUES
+  (1, 1, 500),
+  (2, 2, 150),
+  (3, 3, 40),
+  (3, 4, 30),
+  (3, 5, 20),
+  (3, 6, 10);
