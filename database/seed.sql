@@ -1,46 +1,96 @@
--- ConectaDoa Pro Bem · seed.sql (dados fictícios)
+  -- ONG Pro Bem - schema.sql
+-- ATENCAO: este arquivo apaga e recria o banco probem.
+-- Faça backup antes de importar se houver dados que queira preservar.
+
 SET NAMES utf8mb4;
+
+DROP DATABASE IF EXISTS probem;
+CREATE DATABASE probem
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
 USE probem;
 
-INSERT INTO categoria (nome) VALUES
- ('Dinheiro'),
- ('Medicamento'),
- ('Higiene');
+-- Pessoas que realizam doacoes ou contribuicoes.
+CREATE TABLE doador (
+  id_doador INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(100) NULL,
+  telefone VARCHAR(20) NULL,
+  data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_doador PRIMARY KEY (id_doador),
+  CONSTRAINT uq_doador_email UNIQUE (email)
+) ENGINE=InnoDB;
 
-INSERT INTO item (id_categoria, nome, unidade, exige_receita) VALUES
- (1, 'Doação em dinheiro (Pix)', 'reais', FALSE),
- (1, 'Doação em dinheiro (Cartão)', 'reais', FALSE),
- (2, 'Dipirona 500 mg (venda livre)', 'caixa', FALSE),
- (2, 'Paracetamol 750 mg (venda livre)', 'caixa', FALSE),
- (2, 'Soro fisiológico 500 ml', 'frasco', FALSE),
- (2, 'Amoxicilina 500 mg (com restrição: médico)', 'caixa', TRUE),
- (2, 'Insulina NPH (com restrição: médico)', 'frasco', TRUE),
- (3, 'Sabonete', 'unidade', FALSE),
- (3, 'Fralda infantil', 'pacote', FALSE);
+-- Campanhas/periodos de arrecadacao da ONG.
+CREATE TABLE arrecadacao (
+  id_arrecadacao INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  descricao VARCHAR(255) NULL,
+  data_inicio DATE NOT NULL,
+  data_fim DATE NULL,
+  status ENUM('PLANEJADA','ATIVA','ENCERRADA','CANCELADA')
+    NOT NULL DEFAULT 'PLANEJADA',
+  CONSTRAINT pk_arrecadacao PRIMARY KEY (id_arrecadacao),
+  CONSTRAINT chk_arrecadacao_periodo
+    CHECK (data_fim IS NULL OR data_fim >= data_inicio)
+) ENGINE=InnoDB;
 
-INSERT INTO profissional_responsavel (nome, tipo, registro_profissional) VALUES
- ('Dra. Helena Prado', 'FARMACEUTICO', 'CRF-SP 123456'),
- ('Dr. Marcos Tavares', 'MEDICO', 'CRM-SP 654321');
+-- Contribuicoes financeiras, por exemplo via PIX ou cartao.
+CREATE TABLE contribuicao (
+  id_contribuicao INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_doador INT UNSIGNED NOT NULL,
+  id_arrecadacao INT UNSIGNED NULL,
+  valor DECIMAL(10,2) NOT NULL,
+  forma_pagamento ENUM('PIX','CARTAO_CREDITO','DINHEIRO','TRANSFERENCIA')
+    NOT NULL,
+  status ENUM('PENDENTE','AUTORIZADA','RECEBIDA','RECUSADA','CANCELADA')
+    NOT NULL DEFAULT 'PENDENTE',
+  data_contribuicao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  codigo_referencia VARCHAR(100) NULL,
+  observacao VARCHAR(255) NULL,
+  CONSTRAINT pk_contribuicao PRIMARY KEY (id_contribuicao),
+  CONSTRAINT chk_contribuicao_valor CHECK (valor > 0),
+  CONSTRAINT uq_contribuicao_referencia UNIQUE (codigo_referencia),
+  INDEX idx_contribuicao_doador (id_doador),
+  INDEX idx_contribuicao_arrecadacao (id_arrecadacao),
+  CONSTRAINT fk_contribuicao_doador
+    FOREIGN KEY (id_doador) REFERENCES doador (id_doador)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_contribuicao_arrecadacao
+    FOREIGN KEY (id_arrecadacao) REFERENCES arrecadacao (id_arrecadacao)
+    ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
 
-INSERT INTO doador (tipo_pessoa, anonimo, nome, documento, email, telefone) VALUES
- ('JURIDICA', FALSE, 'Mercado Bom Preço', '11.222.333/0001-81', 'contato@bompreco.exemplo.com', '(11) 3333-1000'),
- ('FISICA', FALSE, 'Ana Souza', '123.456.789-09', 'ana.souza@exemplo.com', '(11) 98888-1001'),
- ('FISICA', FALSE, 'Carlos Lima', NULL, NULL, '(11) 97777-1002'),
- ('JURIDICA', FALSE, 'Farmácia Vida Plena', '44.555.666/0001-72', 'contato@vidaplena.exemplo.com', '(11) 3333-2000'),
- ('FISICA', TRUE, NULL, NULL, NULL, NULL);
+-- Categorias de itens recebidos: medicamentos, alimentos, higiene etc.
+CREATE TABLE categoria (
+  id_categoria INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(60) NOT NULL,
+  CONSTRAINT pk_categoria PRIMARY KEY (id_categoria),
+  CONSTRAINT uq_categoria_nome UNIQUE (nome)
+) ENGINE=InnoDB;
 
-INSERT INTO doacao (id_doador, data_doacao, forma_pagamento, status_pagamento, observacao) VALUES
- (1, '2026-10-05', 'PIX', 'CONFIRMADO', 'Doação via Pix da campanha de outubro'),
- (2, '2026-10-12', 'CARTAO', 'CONFIRMADO', 'Pagamento no cartão pelo link seguro'),
- (4, '2026-10-18', NULL, 'CONFIRMADO', 'Medicamentos conferidos pela farmacêutica voluntária'),
- (5, '2026-10-20', 'BOLETO', 'PENDENTE', 'Doação anônima por boleto');
+-- Catalogo de itens que podem ser recebidos pela ONG.
+CREATE TABLE item (
+  id_item INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_categoria INT UNSIGNED NOT NULL,
+  nome VARCHAR(150) NOT NULL,
+  unidade VARCHAR(20) NOT NULL DEFAULT 'unidade',
+  CONSTRAINT pk_item PRIMARY KEY (id_item),
+  INDEX idx_item_categoria (id_categoria),
+  CONSTRAINT fk_item_categoria
+    FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
-INSERT INTO doacao_item (id_doacao, id_item, quantidade, validade, numero_receita, id_profissional) VALUES
- (1, 1, 500, NULL, NULL, NULL),
- (2, 2, 150, NULL, NULL, NULL),
- (3, 3, 40, '2027-08-31', NULL, NULL),
- (3, 4, 30, '2027-06-30', NULL, NULL),
- (3, 5, 20, '2028-01-31', NULL, NULL),
- (3, 6, 10, '2027-03-31', 'REC-2026-0001', 1),
- (3, 7, 5, '2027-02-28', 'REC-2026-0002', 2),
- (4, 1, 80, NULL, NULL, NULL);
+-- Informacoes adicionais para itens classificados como medicamentos.
+CREATE TABLE medicamento (
+  id_item INT UNSIGNED NOT NULL,
+  principio_ativo VARCHAR(150) NULL,
+  apresentacao VARCHAR(100) NULL,
+  exige_receita BOOLEAN NOT NULL DEFAULT FALSE,
+  CONSTRAINT pk_medicamento PRIMARY KEY (id_item),
+  CONSTRAINT fk_medicamento_item
+    FOREIGN KEY (id_item) REFERENCES item (id_item)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
