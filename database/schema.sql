@@ -1,4 +1,4 @@
--- ConectaDoa ProBem · schema.sql
+-- ConectaDoa Pro Bem · schema.sql
 -- Recria o banco do zero. Atenção: apaga os dados que já existirem.
 SET NAMES utf8mb4;
 DROP DATABASE IF EXISTS conectadoa;
