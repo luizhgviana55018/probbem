@@ -1,38 +1,75 @@
--- ConectaDoa Pro Bem · seed.sql (dados fictícios)
+-- ConectaDoa Pro Bem · schema.sql
+-- Recria o banco do zero. Atenção: apaga os dados que já existirem.
 SET NAMES utf8mb4;
+DROP DATABASE IF EXISTS conectadoa;
+CREATE DATABASE conectadoa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE conectadoa;
 
-INSERT INTO categoria (nome) VALUES
-  ('Dinheiro'),
-  ('Medicamento'),
-  ('Higiene');
+-- Quem doa: pessoa física (CPF), jurídica (CNPJ) ou doador anônimo.
+-- LGPD: doador anônimo não tem nome, documento nem contato gravados.
+CREATE TABLE doador (
+ id_doador INT AUTO_INCREMENT PRIMARY KEY,
+ tipo_pessoa ENUM('FISICA', 'JURIDICA') NOT NULL,
+ anonimo BOOLEAN NOT NULL DEFAULT FALSE,
+ nome VARCHAR(150),
+ documento VARCHAR(18) UNIQUE,
+ email VARCHAR(100) UNIQUE,
+ telefone VARCHAR(20),
+ data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ CHECK (anonimo = TRUE OR (nome IS NOT NULL AND nome <> '')),
+ CHECK (anonimo = FALSE OR (nome IS NULL AND documento IS NULL AND email IS NULL AND telefone IS NULL))
+);
 
-INSERT INTO item (id_categoria, nome, unidade) VALUES
-  (1, 'Doação em dinheiro (Pix)', 'reais'),
-  (1, 'Doação em dinheiro (Cartão)', 'reais'),
-  (2, 'Dipirona 500 mg (venda livre)', 'caixa'),
-  (2, 'Paracetamol 750 mg (venda livre)', 'caixa'),
-  (2, 'Soro fisiológico 500 ml', 'frasco'),
-  (2, 'Amoxicilina 500 mg (com restrição: médico)', 'caixa'),
-  (2, 'Insulina NPH (com restrição: médico)', 'frasco'),
-  (3, 'Sabonete', 'unidade'),
-  (3, 'Fralda infantil', 'pacote');
+-- Categorias do que a ONG recebe: Dinheiro, Medicamento, Higiene.
+CREATE TABLE categoria (
+ id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+ nome VARCHAR(60) NOT NULL UNIQUE
+);
 
-INSERT INTO doador (nome, email, telefone) VALUES
-  ('Mercado Bom Preço', 'contato@bompreco.exemplo.com', '(11) 3333-1000'),
-  ('Ana Souza', 'ana.souza@exemplo.com', '(11) 98888-1001'),
-  ('Carlos Lima', NULL, '(11) 97777-1002'),
-  ('Farmácia Vida Plena', 'contato@vidaplena.exemplo.com', '(11) 3333-2000');
+-- Catálogo de itens. Medicamento pode ser de venda livre ou controlado.
+CREATE TABLE item (
+ id_item INT AUTO_INCREMENT PRIMARY KEY,
+ id_categoria INT NOT NULL,
+ nome VARCHAR(150) NOT NULL,
+ unidade VARCHAR(20) NOT NULL DEFAULT 'unidade',
+ exige_receita BOOLEAN NOT NULL DEFAULT FALSE,
+ FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria)
+);
 
-INSERT INTO doacao (id_doador, data_doacao, observacao) VALUES
-  (1, '2026-10-05', 'Doação via Pix da campanha de outubro'),
-  (2, '2026-10-12', 'Pagamento no cartão pelo link seguro'),
-  (4, '2026-10-18', 'Medicamentos conferidos pela farmacêutica voluntária');
+-- Médico ou farmacêutico que libera os medicamentos controlados.
+CREATE TABLE profissional_responsavel (
+ id_profissional INT AUTO_INCREMENT PRIMARY KEY,
+ nome VARCHAR(150) NOT NULL,
+ tipo ENUM('MEDICO', 'FARMACEUTICO') NOT NULL,
+ registro_profissional VARCHAR(30) NOT NULL UNIQUE,
+ ativo BOOLEAN NOT NULL DEFAULT TRUE
+);
 
-INSERT INTO doacao_item (id_doacao, id_item, quantidade) VALUES
-  (1, 1, 500),
-  (2, 2, 150),
-  (3, 3, 40),
-  (3, 4, 30),
-  (3, 5, 20),
-  (3, 6, 10);
+-- Cada doação pertence a um doador.
+-- Em doação em dinheiro, preencha forma_pagamento (cartão ou boleto/Pix).
+CREATE TABLE doacao (
+ id_doacao INT AUTO_INCREMENT PRIMARY KEY,
+ id_doador INT NOT NULL,
+ data_doacao DATE NOT NULL,
+ forma_pagamento ENUM('CARTAO', 'BOLETO', 'PIX'),
+ status_pagamento ENUM('PENDENTE', 'CONFIRMADO', 'CANCELADO') NOT NULL DEFAULT 'CONFIRMADO',
+ observacao VARCHAR(255),
+ criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (id_doador) REFERENCES doador (id_doador)
+);
+
+-- Tabela associativa N:N entre doação e item.
+-- Para dinheiro, a quantidade guarda o valor em reais.
+-- Item que exige receita precisa do profissional responsável e da validade.
+CREATE TABLE doacao_item (
+ id_doacao INT NOT NULL,
+ id_item INT NOT NULL,
+ quantidade INT NOT NULL CHECK (quantidade > 0),
+ validade DATE,
+ numero_receita VARCHAR(40),
+ id_profissional INT,
+ PRIMARY KEY (id_doacao, id_item),
+ FOREIGN KEY (id_doacao) REFERENCES doacao (id_doacao) ON DELETE CASCADE,
+ FOREIGN KEY (id_item) REFERENCES item (id_item),
+ FOREIGN KEY (id_profissional) REFERENCES profissional_responsavel (id_profissional)
+);
