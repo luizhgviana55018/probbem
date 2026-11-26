@@ -1,3 +1,35 @@
+    -- ONG ProBem - schema.sql
+-- ATENCAO: este arquivo apaga e recria o banco probem.
+-- Faça backup antes de importar se houver dados que queira preservar.
+
+SET NAMES utf8mb4;
+
+DROP DATABASE IF EXISTS probem;
+CREATE DATABASE probem
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE probem;
+
+-- Pessoas que realizam doacoes ou contribuicoes.
+CREATE TABLE doador (
+  id_doador INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(100) NULL,
+  telefone VARCHAR(20) NULL,
+  data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_doador PRIMARY KEY (id_doador),
+  CONSTRAINT uq_doador_email UNIQUE (email)
+) ENGINE=InnoDB;
+
+-- Campanhas/periodos de arrecadacao da ONG.
+CREATE TABLE arrecadacao (
+  id_arrecadacao INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  descricao VARCHAR(255) NULL,
+  data_inicio DATE NOT NULL,
+  data_fim DATE NULL,
+  status ENUM('PLANEJADA','ATIVA','ENCERRADA','CANCELADA')
     NOT NULL DEFAULT 'PLANEJADA',
   CONSTRAINT pk_arrecadacao PRIMARY KEY (id_arrecadacao),
   CONSTRAINT chk_arrecadacao_periodo
@@ -108,4 +140,5 @@ CREATE TABLE doacao_item (
 -- RECEBIDA indica que o valor ou item foi efetivamente recebido pela ONG.
 -- O schema registra dados; nao processa pagamentos reais nem valida receitas.
 -- Em medicamentos, lote e validade podem ser registrados em doacao_item.
+
 
