@@ -1,13 +1,10 @@
-data_inicio DATE NOT NULL,
-  data_fim DATE NULL,
-  status ENUM('PLANEJADA','ATIVA','ENCERRADA','CANCELADA')
     NOT NULL DEFAULT 'PLANEJADA',
   CONSTRAINT pk_arrecadacao PRIMARY KEY (id_arrecadacao),
   CONSTRAINT chk_arrecadacao_periodo
     CHECK (data_fim IS NULL OR data_fim >= data_inicio)
 ) ENGINE=InnoDB;
 
--- Contribuicoes em dinheiro, por exemplo via PIX ou cartao de credito.
+-- Contribuicoes financeiras, por exemplo via PIX ou cartao.
 CREATE TABLE contribuicao (
   id_contribuicao INT UNSIGNED NOT NULL AUTO_INCREMENT,
   id_doador INT UNSIGNED NOT NULL,
@@ -54,7 +51,7 @@ CREATE TABLE item (
     ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- Dados complementares quando o item catalogado for um medicamento.
+-- Informacoes adicionais para itens classificados como medicamentos.
 CREATE TABLE medicamento (
   id_item INT UNSIGNED NOT NULL,
   principio_ativo VARCHAR(150) NULL,
@@ -98,8 +95,6 @@ CREATE TABLE doacao_item (
   CONSTRAINT pk_doacao_item PRIMARY KEY (id_doacao, id_item),
   INDEX idx_doacao_item_item (id_item),
   CONSTRAINT chk_doacao_item_quantidade CHECK (quantidade > 0),
-  CONSTRAINT chk_doacao_item_validade
-    CHECK (data_validade IS NULL OR data_validade >= '2000-01-01'),
   CONSTRAINT fk_doacao_item_doacao
     FOREIGN KEY (id_doacao) REFERENCES doacao (id_doacao)
     ON UPDATE CASCADE ON DELETE CASCADE,
@@ -108,10 +103,9 @@ CREATE TABLE doacao_item (
     ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- Observacao:
--- 'AUTORIZADA' indica aprovacao/confirmacao do registro.
--- 'RECEBIDA' indica que o valor ou item foi efetivamente recebido pela ONG.
--- Em medicamentos, lote e data_validade podem ser informados em doacao_item.
--- Este schema registra os dados; nao processa pagamentos reais nem valida receitas.
+-- Observacoes:
+-- AUTORIZADA indica aprovacao/confirmacao do registro.
+-- RECEBIDA indica que o valor ou item foi efetivamente recebido pela ONG.
+-- O schema registra dados; nao processa pagamentos reais nem valida receitas.
+-- Em medicamentos, lote e validade podem ser registrados em doacao_item.
 
--- Fim do schema da ONG ProBem.
