@@ -1,6 +1,6 @@
--- ConectaDoa Pró-Bem · seed.sql (dados fictícios)
+-- ConectaDoa Pro Bem · seed.sql (dados fictícios)
 SET NAMES utf8mb4;
-USE conectadoa;
+USE probem;
 
 INSERT INTO categoria (nome) VALUES
  ('Dinheiro'),
