@@ -94,3 +94,49 @@ CREATE TABLE medicamento (
     FOREIGN KEY (id_item) REFERENCES item (id_item)
     ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Doacoes de bens/itens entregues a ONG.
+CREATE TABLE doacao (
+  id_doacao INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_doador INT UNSIGNED NOT NULL,
+  id_arrecadacao INT UNSIGNED NULL,
+  data_doacao DATE NOT NULL,
+  status ENUM('PENDENTE','AUTORIZADA','RECEBIDA','RECUSADA','CANCELADA')
+    NOT NULL DEFAULT 'PENDENTE',
+  observacao VARCHAR(255) NULL,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_doacao PRIMARY KEY (id_doacao),
+  INDEX idx_doacao_doador (id_doador),
+  INDEX idx_doacao_arrecadacao (id_arrecadacao),
+  INDEX idx_doacao_data (data_doacao),
+  CONSTRAINT fk_doacao_doador
+    FOREIGN KEY (id_doador) REFERENCES doador (id_doador)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_doacao_arrecadacao
+    FOREIGN KEY (id_arrecadacao) REFERENCES arrecadacao (id_arrecadacao)
+    ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Itens e quantidades de cada doacao (relacionamento N:N).
+CREATE TABLE doacao_item (
+  id_doacao INT UNSIGNED NOT NULL,
+  id_item INT UNSIGNED NOT NULL,
+  quantidade INT UNSIGNED NOT NULL,
+  lote VARCHAR(80) NULL,
+  data_validade DATE NULL,
+  CONSTRAINT pk_doacao_item PRIMARY KEY (id_doacao, id_item),
+  INDEX idx_doacao_item_item (id_item),
+  CONSTRAINT chk_doacao_item_quantidade CHECK (quantidade > 0),
+  CONSTRAINT fk_doacao_item_doacao
+    FOREIGN KEY (id_doacao) REFERENCES doacao (id_doacao)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_doacao_item_item
+    FOREIGN KEY (id_item) REFERENCES item (id_item)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- Observacoes:
+-- AUTORIZADA indica aprovacao/confirmacao do registro.
+-- RECEBIDA indica que o valor ou item foi efetivamente recebido pela ONG.
+-- O schema registra dados; nao processa pagamentos reais nem valida receitas.
+-- Em medicamentos, lote e validade podem ser registrados em doacao_item.
